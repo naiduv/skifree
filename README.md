@@ -1,4 +1,4 @@
-SkiFree Chrome Extension
+HTML5 SkiFree Chrome Extension
 
 Not finished.
 
