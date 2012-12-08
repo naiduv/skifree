@@ -169,10 +169,10 @@ var drawobjectsfrommap = function(){
 }
 //USE PT IN RECT
 var checkcollision = function(type, loc){
-	var objectpos = getSpriteCoordsFromName(type);
-	var skierpos = getSpriteCoordsFromName(curr_skier_sprite);
-	var objrect = new Rect(loc.x+5, loc.y+10, objectpos[2]-20, objectpos[3]-10);
-	var skierrect = new Rect(skierloc.x+5, skierloc.y+10, skierpos[2]-10, skierpos[3]-20);
+	var objectpos = getSpriteRectFromName(type);
+	var skierpos = getSpriteRectFromName(curr_skier_sprite);
+	var objrect = new Rect(loc.x+5, loc.y+10, objectpos.w-20, objectpos.h-10);
+	var skierrect = new Rect(skierloc.x+5, skierloc.y+10, skierpos.w-10, skierpos.h-20);
 	if(rectscollide(objrect, skierrect))
 		return true;
 	else
@@ -181,37 +181,37 @@ var checkcollision = function(type, loc){
 }
 
 
-var spritecoord = [
-	{"name": "ski_left", "pos": [0,0,30,36]},
-	{"name": "ski_right", "pos": [30,0,30,36]},
-	{"name": "ski_left_down", "pos": [60,0,30,36]},
-	{"name": "ski_right_down", "pos": [90,0,30,36]},
-	{"name": "ski_down", "pos": [120,0,30,36]},
-	{"name": "crash1", "pos":[155,0,30,36]},
-	{"name": "crash2", "pos":[190,0,40,36]},
-	{"name": "small_tree", "pos":[49, 93, 35, 40]},
-	{"name": "big_rock", "pos":[120,114,30,16]},
+var spriterects = [
+	{"name": "ski_left", "rect": new Rect(0,0,30,36)},
+	{"name": "ski_right", "rect": new Rect(30,0,30,36)},
+	{"name": "ski_left_down", "rect": new Rect(60,0,30,36)},
+	{"name": "ski_right_down", "rect": new Rect(90,0,30,36)},
+	{"name": "ski_down", "rect": new Rect(120,0,30,36)},
+	{"name": "crash1", "rect": new Rect(155,0,30,36)},
+	{"name": "crash2", "rect": new Rect(190,0,40,36)},
+	{"name": "small_tree", "rect": new Rect(49, 93, 35, 40)},
+	{"name": "big_rock", "rect": new Rect(120,114,30,16)},
 ]
 
 var drawskier = function(ctx, loc){
-	var pos = getSpriteCoordsFromName(curr_skier_sprite);
+	var rect = getSpriteRectFromName(curr_skier_sprite);
 	ctx.clearRect(skierloc.x-10, skierloc.y-10, 50, 56);
-	ctx.drawImage(sprites, pos[0], pos[1], pos[2], pos[3], loc.x, loc.y, pos[2], pos[3]);
+	ctx.drawImage(sprites, rect.x, rect.y, rect.w, rect.h, loc.x, loc.y, rect.w, rect.h);
 }
 
 var drawobject = function(ctx, obj, loc){
-	var pos = getSpriteCoordsFromName(obj);
-	ctx.drawImage(sprites, pos[0], pos[1], pos[2], pos[3], loc.x, loc.y, pos[2], pos[3]);
+	var rect = getSpriteRectFromName(obj);
+	ctx.drawImage(sprites, rect.x, rect.y, rect.w, rect.h, loc.x, loc.y, rect.w, rect.h);
 }
 
 document.onkeyup = function(e){
 	console.log(e.keyCode);
 	switch(e.keyCode){
-		case 37: onLeft();//drawskier(ctx, spritecoord[0].pos, new Point(10,10));
+		case 37: onLeft();//drawskier(ctx, spriterects[0].rect, new Point(10,10));
 		break;
 		case 38: onUp();
 		break;
-		case 39: onRight();//drawskier(ctx, spritecoord[1].pos, new Point(10,10));
+		case 39: onRight();//drawskier(ctx, spriterects[1].rect, new Point(10,10));
 		break;
 		case 40: onDown();
 		break;
@@ -278,8 +278,8 @@ var onLeft = function(){
 	curr_skier_sprite = getNextLogicalSprite(curr_skier_sprite, -1);
 	
 	if(curr_skier_sprite == "ski_left"){
-		if(!crash)
-			skierloc.x -= left_right_dist_delta;
+		// if(!crash)
+		// 	skierloc.x -= left_right_dist_delta;
 		not_going_down = true;
 	} else {
 		not_going_down = false;
@@ -293,18 +293,18 @@ var onRight = function(){
 	//skierloc.x += left_right_dist_delta;
 
 	if(curr_skier_sprite == "ski_right"){
-		if(!crash)
-			skierloc.x += left_right_dist_delta;
+		// if(!crash)
+		// 	skierloc.x += left_right_dist_delta;
 		not_going_down = true;
 	} else {
 		not_going_down = false;
 	}
 }
 
-var getSpriteCoordsFromName = function(name){
-	for(var i=0; i<spritecoord.length; i++){
-		if(spritecoord[i].name == name){
-			return spritecoord[i].pos;
+var getSpriteRectFromName = function(name){
+	for(var i=0; i<spriterects.length; i++){
+		if(spriterects[i].name == name){
+			return spriterects[i].rect;
 		}
 	}
 }
