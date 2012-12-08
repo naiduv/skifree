@@ -164,15 +164,23 @@ var drawobjectsfrommap = function(){
 		// else if(curr_skier_sprite == 'ski_right')
 		// 	map[i].loc.x -=5;
 		if(curr_skier_sprite == 'ski_down')
-			map[i].loc.y -=5;
+			map[i].loc.y -=6;
 		else if(curr_skier_sprite == 'ski_left_down'){
-			map[i].loc.y -=5;
+			map[i].loc.y -=3;
 			map[i].loc.x +=5;	
-		}		
+		}
 		else if(curr_skier_sprite == 'ski_right_down'){
-			map[i].loc.y -=5;
+			map[i].loc.y -=3;
 			map[i].loc.x -=5;	
-		} 
+		}
+		else if(curr_skier_sprite == 'ski_down_left'){
+			map[i].loc.y -=5;
+			map[i].loc.x +=3;	
+		}
+		else if(curr_skier_sprite == 'ski_down_right'){
+			map[i].loc.y -=5;
+			map[i].loc.x -=3;	
+		}  
 	}
 }
 //USE PT IN RECT
@@ -192,9 +200,11 @@ var checkcollision = function(type, loc){
 var spriterects = [
 	{"name": "ski_left", 		"rect": new Rect(0,0,30,36)},
 	{"name": "ski_right", 		"rect": new Rect(30,0,30,36)},
-	{"name": "ski_left_down", 	"rect": new Rect(60,0,30,36)},
-	{"name": "ski_right_down", 	"rect": new Rect(90,0,30,36)},
+	{"name": "ski_down_left", 	"rect": new Rect(60,0,30,36)},
+	{"name": "ski_down_right", 	"rect": new Rect(90,0,30,36)},
 	{"name": "ski_down", 		"rect": new Rect(120,0,30,36)},
+	{"name": "ski_right_down", 	"rect": new Rectxy(232,0,260,34)},
+	{"name": "ski_left_down", 	"rect": new Rectxy(262,0,287,34)},
 	{"name": "crash1", 			"rect": new Rect(155,0,30,36)},
 	{"name": "crash2", 			"rect": new Rect(190,0,40,36)},
 	{"name": "small_tree", 		"rect": new Rect(49, 93, 35, 40)},
@@ -234,7 +244,7 @@ document.onkeyup = function(e){
 	}
 }
 
-var logic_sprites = ['ski_left','ski_left_down','ski_down','ski_right_down','ski_right'];
+var logic_sprites = ['ski_left','ski_left_down','ski_down_left','ski_down','ski_down_right','ski_right_down','ski_right'];
 
 var getNextLogicalSprite = function(curr, next){
 	var dir_index = -1;
