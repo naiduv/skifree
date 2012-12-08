@@ -11,8 +11,23 @@ _gaq.push(['_trackPageview']);
   var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 })();
 
+
+
+// chrome.extension.onMessage.addListener(msgHandler);
+
+// var msgHandler = function(e){
+// 	switch(e.msg){
+// 		case 'old_state':
+// 			debugger;
+// 			skierloc = e.value.skierloc;
+// 			map = e.value.map;
+// 			break;
+// 	}
+// }
+
 var left_right_dist_delta = 5;
 var score_penalty_crash = 100;
+var paused = false;
 
 var canvasm = document.getElementById("canvasm");
 var ctxm = canvasm.getContext("2d");
@@ -30,12 +45,29 @@ var not_going_down = false;
 var score;
 var score_font_color = "black";
 
+var faster = false;
+
 window.addEventListener("load", init); 
+
+var toggleshowcontrols = function(){
+	$("#controlsview").toggleClass("shown");
+}
 
 $('a').live('click', function(e) {
   var href = e.currentTarget.href;
+  var classname = e.currentTarget.className;
   chrome.tabs.getSelected(null,function(tab) {
-    chrome.tabs.update(tab.id, {url: href});
+  	if(href[href.length-1]=="#"){
+  		switch(classname){
+  			case 'js-controls':
+  				_gaq.push(['_trackEvent', 'click', 'controls']);
+  				toggleshowcontrols();
+  				break;
+  		}
+  		return;
+  	} else {
+  		chrome.tabs.update(tab.id, {url: href});
+  	}
   });
 });
  
@@ -43,7 +75,7 @@ function init(){
 	//we're ready for the loop
 	skierloc = new Point(canvass.width/2, canvass.height/2);
 	score = 0;
-	setInterval(mainloop, 28);
+	mainloop();
 }
 
 var oncrash = function(){
@@ -56,8 +88,12 @@ var oncrash = function(){
 }
 
 var mainloop = function(){
+	var mainlooptimer = setTimeout(mainloop, faster?18:28);
 	$("#score .num").html("score:"+score);
 	$("#score .num").css("color", score_font_color);
+
+	if(paused)
+		return;
 
 	if(crash)
 		return;
@@ -179,6 +215,11 @@ document.onkeyup = function(e){
 		break;
 		case 40: onDown();
 		break;
+		case 70: onFButton();
+		break;
+		case 80: onPButton();
+		break;
+		default: console.log(e.keyCode);
 	}
 }
 
@@ -208,6 +249,17 @@ var getNextLogicalSprite = function(curr, next){
 	else
 		return logic_sprites[dir_index+next];
 
+}
+
+var onFButton = function(){
+	faster = !faster;
+	_gaq.push(['_trackEvent', 'input', 'controls', 'faster', faster?1:0]);
+}
+
+var onPButton = function(){
+	paused = !paused;
+	_gaq.push(['_trackEvent', 'input', 'controls', 'paused', paused?1:0]);
+	//chrome.extension.sendMessage('skierloc:'+skierloc, console.log('sentloc'));
 }
 
 var onUp = function(){
@@ -256,3 +308,5 @@ var getSpriteCoordsFromName = function(name){
 		}
 	}
 }
+
+

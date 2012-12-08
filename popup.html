@@ -6,10 +6,25 @@
 <body>
 
 <div id="frame" style="position:fixed; font-size:10px; font-family: 'Lucida Console';">
-	<div id="score" style="position:absolute; z-index:2; top: 0%"><div class="num" style="color:black;float:right"></div></div>
 	<canvas id="canvasm" height="300" width="400" style="position:absolute; z-index:1;"></canvas>
 	<canvas id="canvass" height="300" width="400" style="position:absolute; z-index:0"></canvas>
-	<a href="http://ski.ihoc.net/" style="position:fixed;bottom:1%; right:1%">credits</a>
+	
+	<div id="controlsview">
+		<div id="arrowkeys">
+			<img src="arrowkeys.png"></img>
+		</div>
+		<div id="text" style="padding-top:10px">
+			F - toggle faster/slower 
+			</br>
+			P - toggle pause
+		</div>
+	</div>
+
+	<div id="score" style="position:fixed; z-index:3; left:1%; bottom:1%"><div class="num" style="color:black;float:right"></div></div>
+<!-- 	<a href="#" class="js-stats" style="position:fixed;bottom:1%; right:15%; z-index:3">stats</a> -->
+	<a href="#" class="js-controls" style="position:fixed;bottom:1%; right:15%; z-index:3">controls</a>
+	<a href="http://ski.ihoc.net/" style="position:fixed;bottom:1%; right:1%; z-index:3">credits</a>
+
 </div>
 </body>
 <script src = "jquery-1.8.3.min.js"></script>

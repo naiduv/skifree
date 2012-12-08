@@ -5,3 +5,18 @@ body
 	width: 410px;
 	background-color:#ffffff;
 }
+
+#controlsview
+{
+	position: absolute;
+	background-color: #ffffff;
+	opacity: 0;
+	height: 300px;
+	width: 400px;
+	z-index: -1;
+}
+
+#controlsview.shown
+{
+	opacity:0.8;
+}
