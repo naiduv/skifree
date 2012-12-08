@@ -25,7 +25,8 @@ _gaq.push(['_trackPageview']);
 // 	}
 // }
 
-var left_right_dist_delta = 5;
+var map_size_cap = 300;
+var left_right_dist_delta = 10;
 var score_penalty_crash = 100;
 var paused = false;
 
@@ -78,6 +79,13 @@ function init(){
 	mainloop();
 }
 
+var mapcapped = function(){
+	if(map.length<=map_size_cap)
+		return false;
+	else
+		return true;
+}
+
 var oncrash = function(){
 	if(!crash)
 		return;
@@ -120,7 +128,7 @@ var _map_object = function(){
 	this.hit = false;
 }
 
-var map_objects = ["small_tree", "big_rock"];
+var map_objects = ["small_tree", "big_rock", "small_rock", "burnt_tree", "big_tree"];
 
 var rand = function(max){
 	return Math.floor(Math.random()*max);
@@ -131,7 +139,7 @@ var addobjecttomap = function(){
 		return;
 
 	var mo = new _map_object();
-	var ranpick = rand(20);
+	var ranpick = rand(12*map_objects.length-1);
 	if(ranpick > map_objects.length-1)
 		return;
 	mo.type = map_objects[ranpick];
@@ -182,16 +190,19 @@ var checkcollision = function(type, loc){
 
 
 var spriterects = [
-	{"name": "ski_left", "rect": new Rect(0,0,30,36)},
-	{"name": "ski_right", "rect": new Rect(30,0,30,36)},
-	{"name": "ski_left_down", "rect": new Rect(60,0,30,36)},
-	{"name": "ski_right_down", "rect": new Rect(90,0,30,36)},
-	{"name": "ski_down", "rect": new Rect(120,0,30,36)},
-	{"name": "crash1", "rect": new Rect(155,0,30,36)},
-	{"name": "crash2", "rect": new Rect(190,0,40,36)},
-	{"name": "small_tree", "rect": new Rect(49, 93, 35, 40)},
-	{"name": "big_rock", "rect": new Rect(120,114,30,16)},
-]
+	{"name": "ski_left", 		"rect": new Rect(0,0,30,36)},
+	{"name": "ski_right", 		"rect": new Rect(30,0,30,36)},
+	{"name": "ski_left_down", 	"rect": new Rect(60,0,30,36)},
+	{"name": "ski_right_down", 	"rect": new Rect(90,0,30,36)},
+	{"name": "ski_down", 		"rect": new Rect(120,0,30,36)},
+	{"name": "crash1", 			"rect": new Rect(155,0,30,36)},
+	{"name": "crash2", 			"rect": new Rect(190,0,40,36)},
+	{"name": "small_tree", 		"rect": new Rect(49, 93, 35, 40)},
+	{"name": "big_rock", 		"rect": new Rect(120,114,30,16)},
+	{"name": "small_rock", 		"rect": new Rectxy(236,115,256,130)},
+	{"name": "burnt_tree", 		"rect": new Rectxy(89,99,113,127)},
+	{"name": "big_tree", 		"rect": new Rectxy(6,61,38,127)},
+	]
 
 var drawskier = function(ctx, loc){
 	var rect = getSpriteRectFromName(curr_skier_sprite);
@@ -281,6 +292,8 @@ var onLeft = function(){
 		// if(!crash)
 		// 	skierloc.x -= left_right_dist_delta;
 		not_going_down = true;
+		for(var i=0; i<map.length; i++)
+			map[i].loc.x += left_right_dist_delta;
 	} else {
 		not_going_down = false;
 	}
@@ -296,6 +309,8 @@ var onRight = function(){
 		// if(!crash)
 		// 	skierloc.x += left_right_dist_delta;
 		not_going_down = true;
+		for(var i=0; i<map.length; i++)
+			map[i].loc.x -=left_right_dist_delta;
 	} else {
 		not_going_down = false;
 	}

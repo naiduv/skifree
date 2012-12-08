@@ -19,6 +19,10 @@ Rect = function(x,y,w,h){
 	this.h = h;
 }
 
+Rectxy = function(x1,y1,x2,y2){
+	return new Rect(x1,y1,x2-x1,y2-y1);
+} 
+
 Rect.prototype = {
 	getcorners: function(){
 		pts = [];
