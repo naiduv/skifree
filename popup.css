@@ -1,7 +1,7 @@
 body
 {
 	position: relative;
-	height: 310px;
+	height: 320px;
 	width: 410px;
 	background-color:#ffffff;
 }
@@ -16,7 +16,75 @@ body
 	z-index: -1;
 }
 
-#controlsview.shown
+#controlsview.show
 {
 	opacity:0.8;
+}
+
+#creditsimg
+{
+	position:fixed;
+	right:1%;
+	top:1%;
+	z-index:2;
+	opacity:0;
+}
+
+#creditsimg.show
+{
+	opacity:1;
+}
+
+#highscoresview
+{
+	position: absolute;
+	background-color: #ffffff;
+	opacity: 0;
+	height: 300px;
+	width: 400px;
+	z-index: -1;	
+}
+
+#highscoresview.shown
+{
+	z-index: 3;
+	opacity: 0.8;
+}
+
+#submitscore
+{
+	position: fixed;
+	left:1%;
+	top:1%;
+	height: 12px;
+	z-index: 3;
+}
+
+.nameinput
+{
+	height:19px; 
+	width:90px;
+	padding-top: 1px;
+}
+
+#score
+{
+	position:fixed; 
+	left:1%; 
+	bottom:1%
+}
+
+.menu-controls
+{
+	position:fixed;bottom:1%; right:15%; z-index:3;
+}
+
+.menu-submitscore
+{
+	position:fixed;bottom:1%; left:17%; z-index:3;
+}
+
+.menu-credits
+{
+	position:fixed;bottom:1%; right:1%; z-index:3;
 }
