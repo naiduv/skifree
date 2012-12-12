@@ -43,14 +43,14 @@ var ctxs = canvass.getContext("2d");
 var sprites = document.createElement('image');
 sprites.src='sprites.png';
 
-var curr_skier_sprite = "ski_down";
+var curr_skier_sprite = "ski_right";
 var skierloc = new Point(10,10);
 var map = Array();
 var crash = false;
-var not_going_down = false;
+var not_going_down = true;
 var score;
 var score_font_color = "black";
-
+var finished_map = false;
 var faster = false;
 
 window.addEventListener("load", init); 
@@ -91,12 +91,57 @@ function init(){
 	//we're ready for the loop
 	skierloc = new Point(canvass.width/2, canvass.height/2-60);
 	score = 0;
+	addFirstObjects();
 	mainloop();
 }
 
+var sx1=-345;
+var sx2=-45;
+
+var fsx1=30;
+var fsx2=330;
+
+var stx1=405;
+var stx2=705;
+
+var starty = 430;
+var finishy = 12030;
+
+var firstobjs = [{hard: false, loc: new Point(30, 190), type: "sign_slalom"},
+				{hard: false, loc: new Point(180, 190), type: "sign_freestyle"},
+				{hard: false, loc: new Point(330, 190), type: "sign_treeslalom"},
+				
+				//slalom
+				{hard: false, loc: new Point(sx1, starty), type: "sign_start_left"},
+				{hard: false, loc: new Point(sx2, starty), type: "sign_start_right"},
+				{hard: false, loc: new Point(sx1, finishy), type: "sign_finish_left"},
+				{hard: false, loc: new Point(sx2, finishy), type: "sign_finish_right"},
+
+				//freestyle
+				{hard: false, loc: new Point(fsx1, starty), type: "sign_start_left"},
+				{hard: false, loc: new Point(fsx2, starty), type: "sign_start_right"},
+				{hard: false, loc: new Point(fsx1, finishy), type: "sign_finish_left"},
+				{hard: false, loc: new Point(fsx2, finishy), type: "sign_finish_right"},
+
+				//treeslalom
+				{hard: false, loc: new Point(stx1, starty), type: "sign_start_left"},
+				{hard: false, loc: new Point(stx2, starty), type: "sign_start_right"},
+				{hard: false, loc: new Point(stx1, finishy), type: "sign_finish_left"},
+				{hard: false, loc: new Point(stx2, finishy), type: "sign_finish_right"},
+
+				]
+
 var addFirstObjects = function()
 {
+	for(var i=0; i<firstobjs.length; i++){
+		var mo = new map_object();
+		mo.hard = firstobjs[i].hard;
+		mo.loc = firstobjs[i].loc;
+		mo.type = firstobjs[i].type;
+		map.push(mo);
+	}
 }
+
 
 var mapcapped = function(){
 	if(map.length<=map_size_cap)
@@ -114,8 +159,10 @@ var oncrash = function(){
 	drawskier(ctxs, skierloc);
 }
 
+var mainlooptimer;
 var mainloop = function(){
-	var mainlooptimer = setTimeout(mainloop, faster?fast_speed:slow_speed);
+	clearTimeout(mainlooptimer);
+	mainlooptimer = setTimeout(mainloop, faster?fast_speed:slow_speed);
 	$("#score .num").html("score:"+score);
 	$("#score .num").css("color", score_font_color);
 
@@ -135,18 +182,50 @@ var mainloop = function(){
 	clearmap();
 	drawobjectsfrommap();
 	drawskier(ctxs, skierloc);
+	//checkfinish();
 }
+
+var checkfinish = function(){
+	if(map[0].loc.y>(-1*finishy-500)){
+		return;
+	}
+
+	resetmap();
+}
+
+var resetmap = function(){
+	for(var i=0; i<map.length; i++){
+		map[i].loc.y += finishy+1000; 
+	}
+	
+}
+
+
+
+
 
 var clearmap = function(){
 	ctxm.clearRect(0,0,canvasm.width, canvasm.height);
 }
 
-var _map_object = function(){
+var map_object = function(){
 	this.type = "small_tree";
 	this.loc = new Point(10,10); 
 	this.hit = false;
 	this.hard = true;
+	this.automove = false;
+	this.movevector = new Point(0,0);
 }
+
+// var new_map_object = function(type, loc, hard, auto, vector){
+// 	var mo = new map_object();
+// 	mo.type = type;
+// 	mo.loc = loc;
+// 	mo.hard = hard;
+// 	mo.automove = auto;
+// 	mo.movevector = vector;
+// 	return mo;
+// }
 
 var map_objects = ["small_tree", "big_rock", "small_rock", "burnt_tree", "big_tree"];
 
@@ -154,7 +233,7 @@ var addobjecttomap = function(){
 	if(not_going_down)
 		return;
 
-	var mo = new _map_object();
+	var mo = new map_object();
 	var ranpick = myurand(3*map_objects.length-1);
 	if(ranpick > map_objects.length-1)
 		return;
@@ -180,6 +259,8 @@ var drawobjectsfrommap = function(){
 		// 	map[i].loc.x -=5;
 		if(curr_skier_sprite == 'ski_down')
 			map[i].loc.y -=6;
+		else if(curr_skier_sprite == "ski_jump_1")
+			map[i].loc.y -=8;
 		else if(curr_skier_sprite == 'ski_left_down'){
 			map[i].loc.y -=3;
 			map[i].loc.x +=5;	
@@ -206,11 +287,14 @@ var drawobjectsfrommap = function(){
 }
 //USE PT IN RECT
 var checkcollision = function(type, loc){
-	var objectpos = getSpriteRectFromName(type);
-	var skierpos = getSpriteRectFromName(curr_skier_sprite);
-	var objrect = new Rect(loc.x+5, loc.y+10, objectpos.w-20, objectpos.h-10);
-	var skierrect = new Rect(skierloc.x+5, skierloc.y+10, skierpos.w-10, skierpos.h-20);
-	if(rectscollide(objrect, skierrect))
+	var objectrect = getSpriteRectFromName(type);
+	var skierrect = getSpriteRectFromName(curr_skier_sprite);
+	var objcollrect = new Rect(loc.x+10, loc.y+objectrect.h-10, objectrect.w-10, 5);
+	var skiercollrect = new Rect(skierloc.x+5, skierloc.y+10, skierrect.w-10, skierrect.h-20);
+	// ctxm.fillStyle = "rgba(0, 0, 200, 0.5)";
+	// ctxm.fillRect(objcollrect.x, objcollrect.y, objcollrect.w, objcollrect.h);
+	// ctxm.fillRect(skiercollrect.x, skiercollrect.y, skiercollrect.w, skiercollrect.h);
+	if(rectscollide(objcollrect, skiercollrect))
 		return true;
 	else
 		return false;
@@ -219,25 +303,28 @@ var checkcollision = function(type, loc){
 
 
 var spriterects = [
-	{"name": "ski_left", 		"rect": new Rect(0,0,30,36),		},
-	{"name": "ski_right", 		"rect": new Rect(30,0,30,36),		},
-	{"name": "ski_down_left", 	"rect": new Rect(60,0,30,36),		},
-	{"name": "ski_down_right", 	"rect": new Rect(90,0,30,36),		},
-	{"name": "ski_down", 		"rect": new Rect(120,0,30,36),		},
-	{"name": "ski_right_down", 	"rect": new Rectxy(232,0,260,34),	},
-	{"name": "ski_left_down", 	"rect": new Rectxy(262,0,287,34),	},
-	{"name": "ski_jump_1",		"rect": new Rectxy(288,0,324,34),	},
-	{"name": "crash1", 			"rect": new Rect(155,0,30,36),		},
-	{"name": "crash2", 			"rect": new Rect(190,0,40,36),		},
-	{"name": "small_tree", 		"rect": new Rect(49, 93, 35, 40),	},
-	{"name": "big_rock", 		"rect": new Rect(120,114,30,16),	},
-	{"name": "small_rock", 		"rect": new Rectxy(236,115,256,130),},
-	{"name": "burnt_tree", 		"rect": new Rectxy(89,99,113,127),	},
-	{"name": "big_tree", 		"rect": new Rectxy(6,61,38,127),	},
-	{"name": "sign_slalom",		"rect": new Rectxy(4,183,46,221),	},
-	{"name": "sign_freestyle",	"rect": new Rectxy(54,185,97,222),	},
-	{"name": "sign_treeslalom",	"rect": new Rectxy(100,185,147,223),},
-
+	{"name": "ski_left", 			"rect": new Rect(0,0,30,36),		},
+	{"name": "ski_right", 			"rect": new Rect(30,0,30,36),		},
+	{"name": "ski_down_left", 		"rect": new Rect(60,0,30,36),		},
+	{"name": "ski_down_right", 		"rect": new Rect(90,0,30,36),		},
+	{"name": "ski_down", 			"rect": new Rect(120,0,30,36),		},
+	{"name": "ski_right_down", 		"rect": new Rectxy(232,0,260,34),	},
+	{"name": "ski_left_down", 		"rect": new Rectxy(262,0,287,34),	},
+	{"name": "ski_jump_1",			"rect": new Rectxy(288,0,324,34),	},
+	{"name": "crash1", 				"rect": new Rect(155,0,30,36),		},
+	{"name": "crash2", 				"rect": new Rect(190,0,40,36),		},
+	{"name": "small_tree", 			"rect": new Rect(49, 93, 35, 40),	},
+	{"name": "big_rock", 			"rect": new Rect(120,114,30,16),	},
+	{"name": "small_rock", 			"rect": new Rectxy(236,115,256,130),},
+	{"name": "burnt_tree", 			"rect": new Rectxy(89,99,113,127),	},
+	{"name": "big_tree", 			"rect": new Rectxy(6,61,38,127),	},
+	{"name": "sign_slalom",			"rect": new Rectxy(4,183,46,221),	},
+	{"name": "sign_freestyle",		"rect": new Rectxy(54,185,97,222),	},
+	{"name": "sign_treeslalom",		"rect": new Rectxy(100,185,147,223),},
+	{"name": "sign_start_left",		"rect": new Rectxy(155,189,202,222),},
+	{"name": "sign_start_right",	"rect": new Rectxy(202,189,249,222),},
+	{"name": "sign_finish_left",	"rect": new Rectxy(333,189,385,222),},
+	{"name": "sign_finish_right",	"rect": new Rectxy(385,189,440,222),},
 	]
 
 var drawskier = function(ctx, loc){
@@ -299,10 +386,30 @@ var getNextLogicalSprite = function(curr, next){
 
 }
 
-var onSpace = function(){
-	//jump
 
+
+var onSpace = function(){
+	curr_skier_sprite = "ski_jump_1";
+	setTimeout(endJump, 350);
+	//jump
 }
+
+var jumpMoveUp = function()
+{
+	skierloc.y -=1;
+}
+
+var jumpMoveDown = function()
+{
+	skierloc.y -=1;
+}
+
+var endJump = function()
+{
+	skierloc.y += 6;
+	onDown();
+}
+
 
 var onFButton = function(){
 	faster = !faster;
@@ -320,7 +427,7 @@ var onUp = function(){
 }
 
 var onDown = function(){
-	if(crash) 
+	if(crash) 		
 		return;
 	curr_skier_sprite = "ski_down";
 	not_going_down = false;
