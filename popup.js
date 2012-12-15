@@ -27,8 +27,6 @@ _gaq.push(['_trackPageview']);
 var slow_speed = 22;
 var fast_speed = 12;
 
-var jumping = false;
-
 var map_size_cap = 300;
 var left_right_dist_delta = 10;
 var score_penalty_crash = 100;
@@ -73,9 +71,9 @@ $('a').live('click', function(e) {
   				_gaq.push(['_trackEvent', 'click', 'controls']);
   				toggleshowcontrols();
   				break;
-  			case 'menu-submitscore':
-  				_gaq.push(['_trackEvent', 'click', 'submitscore', score]);
-  				break;
+  			// case 'menu-submitscore':
+  			// 	_gaq.push(['_trackEvent', 'click', 'submitscore', score]);
+  			// 	break;
   			case 'menu-credits':
   				toggleshowcredits();
   				break;
@@ -89,6 +87,7 @@ $('a').live('click', function(e) {
  
 function init(){
 	//we're ready for the loop
+	_gaq.push(['_trackEvent', 'game', 'started']);
 	skierloc = new Point(canvass.width/2, canvass.height/2-60);
 	score = 0;
 	addFirstObjects();
@@ -157,6 +156,10 @@ var oncrash = function(){
 	//console.log('crashed')
 	curr_skier_sprite="crash1";
 	drawskier(ctxs, skierloc);
+	if(jumping){
+		jumping = false;
+		endjump();
+	}
 }
 
 var mainlooptimer;
@@ -182,7 +185,14 @@ var mainloop = function(){
 	clearmap();
 	drawobjectsfrommap();
 	drawskier(ctxs, skierloc);
+	logscore();
 	//checkfinish();
+}
+
+var logscore = function(){
+	if(score>0 && score % 300 == 0){
+		_gaq.push(['_trackEvent', 'game', 'score', score]);
+	}
 }
 
 var checkfinish = function(){
@@ -190,7 +200,7 @@ var checkfinish = function(){
 		return;
 	}
 
-	resetmap();
+	//resetmap();
 }
 
 var resetmap = function(){
@@ -215,6 +225,7 @@ var map_object = function(){
 	this.hard = true;
 	this.automove = false;
 	this.movevector = new Point(0,0);
+	this.height = 0;
 }
 
 // var new_map_object = function(type, loc, hard, auto, vector){
@@ -227,7 +238,12 @@ var map_object = function(){
 // 	return mo;
 // }
 
-var map_objects = ["small_tree", "big_rock", "small_rock", "burnt_tree", "big_tree"];
+var map_objects = [{o:"small_tree", h:10 },
+				   {o:"big_rock", h:0},
+				   {o:"small_rock", h:0},
+				   {o:"burnt_tree", h:10},
+				   {o:"big_tree", h:20}
+				   ];
 
 var addobjecttomap = function(){
 	if(not_going_down)
@@ -237,14 +253,15 @@ var addobjecttomap = function(){
 	var ranpick = myurand(3*map_objects.length-1);
 	if(ranpick > map_objects.length-1)
 		return;
-	mo.type = map_objects[ranpick];
+	mo.type = map_objects[ranpick].o;
+	mo.height = map_objects[ranpick].h;
 	mo.loc = new Point(myrand(canvasm.width*2), canvasm.height);
 	map.push(mo);
 }
 
 var drawobjectsfrommap = function(){
 	for(var i=0; i<map.length; i++){
-		if(map[i].hard && map[i].hit==false && checkcollision(map[i].type, map[i].loc)){
+		if(map[i].hard && map[i].hit==false && checkcollision(map[i].type, map[i].loc, map[i].height)){
 			map[i].hit = true;
 			curr_skier_sprite = "crash2";
 			crash = true;
@@ -286,7 +303,7 @@ var drawobjectsfrommap = function(){
 	}
 }
 //USE PT IN RECT
-var checkcollision = function(type, loc){
+var checkcollision = function(type, loc, height){
 	var objectrect = getSpriteRectFromName(type);
 	var skierrect = getSpriteRectFromName(curr_skier_sprite);
 	var objcollrect = new Rect(loc.x+10, loc.y+objectrect.h-10, objectrect.w-10, 5);
@@ -294,11 +311,21 @@ var checkcollision = function(type, loc){
 	// ctxm.fillStyle = "rgba(0, 0, 200, 0.5)";
 	// ctxm.fillRect(objcollrect.x, objcollrect.y, objcollrect.w, objcollrect.h);
 	// ctxm.fillRect(skiercollrect.x, skiercollrect.y, skiercollrect.w, skiercollrect.h);
-	if(rectscollide(objcollrect, skiercollrect))
-		return true;
-	else
+	if(rectscollide(objcollrect, skiercollrect) && skier_elev<=height)
+		 	return true;
+		// if(skier_elev<=height)
+		// 	return true;
+		// else{
+		// 	//startJump(24);
+		// 	debugger;
+		// 	//skier_elev = height+1;
+		// 	//jumping = false;
+		// 	jumpstep +=10;
+		// 	jumpsize +=10;
+		// 	return false;
+		// }
+	else 
 		return false;
-
 }
 
 
@@ -329,7 +356,7 @@ var spriterects = [
 
 var drawskier = function(ctx, loc){
 	var rect = getSpriteRectFromName(curr_skier_sprite);
-	ctx.clearRect(skierloc.x-10, skierloc.y-10, 50, 56);
+	ctx.clearRect(0,0,canvass.width, canvass.height);
 	ctx.drawImage(sprites, rect.x, rect.y, rect.w, rect.h, loc.x, loc.y, rect.w, rect.h);
 }
 
@@ -387,26 +414,73 @@ var getNextLogicalSprite = function(curr, next){
 }
 
 
-
+var jumping = false;
 var onSpace = function(){
-	curr_skier_sprite = "ski_jump_1";
-	setTimeout(endJump, 350);
+	console.log('onspace');
+	startJump(10, 10);
 	//jump
+}
+
+var multiplyJump = function(){
+
+}
+
+var jumpMoveUpIntervalId;
+var jumpMoveDownIntervalId;
+var skier_elev = 0;
+var jumpsize; 
+var jumpstep;
+var jumpMoveUpCount = 0
+
+var startJump = function(size, step){
+	if(jumping)
+		return;
+	jumping = true;
+	jumpsize = size;
+	jumpstep = step;
+	clearInterval(jumpMoveUpIntervalId);
+	clearInterval(jumpMoveDownIntervalId);
+	jumpMoveUpCount = 0;
+
+	curr_skier_sprite = "ski_jump_1";
+	jumpMoveUp();
+	jumpMoveUpIntervalId = setInterval(jumpMoveUp, jumpstep);
+	//setTimeout(endJump, jumpstep*(jumpsize+1));
 }
 
 var jumpMoveUp = function()
 {
+	console.log('jumpmoveup');
+	jumpMoveUpCount++;
 	skierloc.y -=1;
+	skier_elev +=1; 
+	if(jumpMoveUpCount==jumpsize){
+		//skier_elev = 0;
+		jumpMoveDownCount = jumpMoveUpCount;
+		jumpMoveDownIntervalId = setInterval(jumpMoveDown, jumpstep);
+		clearInterval(jumpMoveUpIntervalId);
+	}
 }
 
 var jumpMoveDown = function()
 {
-	skierloc.y -=1;
+	console.log('jumpmovedown');
+	jumpMoveDownCount--;
+	skierloc.y +=1;
+	skier_elev -=1;
+	if(jumpMoveDownCount<=0){
+		clearInterval(jumpMoveDownIntervalId);
+		endJump();
+	}
 }
 
 var endJump = function()
 {
-	skierloc.y += 6;
+	skierloc = new Point(canvass.width/2, canvass.height/2-60);
+	skier_elev = 0;
+	console.log('endjump');
+	//skierloc.y += 6;
+	jumping = false;
 	onDown();
 }
 
