@@ -71,9 +71,26 @@ $('a').live('click', function(e) {
   				_gaq.push(['_trackEvent', 'click', 'controls']);
   				toggleshowcontrols();
   				break;
-  			// case 'menu-submitscore':
-  			// 	_gaq.push(['_trackEvent', 'click', 'submitscore', score]);
-  			// 	break;
+  			case 'menu-submitscore':
+  				debugger;
+  		// 		$.ajax({
+    // 				url: 'https://skifree.firebaseio.com/test.json',
+    // 				type: 'PUT',
+    // 				data: '{"xasxasxsax":"test"}',
+    // 				success: function(res) {
+    // 					debugger;
+    // 					console.log("this is the res = "+res);
+    // 				}
+				// });
+    // 			$.ajax({
+    // 				url: 'https://skifree.firebaseio.com/test.json',
+    // 				type: 'GET',
+    // 				success: function(res) {
+    // 					debugger;
+    // 					console.log("this is the res = "+res);
+    // 				}
+				// });
+  		// 		break;
   			case 'menu-credits':
   				toggleshowcredits();
   				break;
@@ -93,6 +110,26 @@ function init(){
 	addFirstObjects();
 	mainloop();
 }
+
+// var highscores;
+// var gethighscores = function(){
+// 	$.ajax({
+//     	url: 'https://skifree.firebaseio.com/highscores.json',
+//     	type: 'GET',
+//     	success: function(res) {
+//     		highscores = res;
+//     		console.log(highscores);
+//     	}
+// 	});
+// }
+
+// var puthighscore() = function(){
+// 	$.ajax({
+//     	url: 'https://skifree.firebaseio.com/highscores.json',
+//     	type: 'PUT',
+//     	success: function(res) {
+//     	}
+// }
 
 var sx1=-345;
 var sx2=-45;
@@ -210,10 +247,6 @@ var resetmap = function(){
 	
 }
 
-
-
-
-
 var clearmap = function(){
 	ctxm.clearRect(0,0,canvasm.width, canvasm.height);
 }
@@ -238,12 +271,12 @@ var map_object = function(){
 // 	return mo;
 // }
 
-var map_objects = [{o:"small_tree", h:10 },
-				   {o:"big_rock", h:0},
-				   {o:"small_rock", h:0},
-				   {o:"burnt_tree", h:10},
-				   {o:"big_tree", h:20}
-				   ];
+var map_objects = [{o:"small_tree", h:10, hard:1 },
+		   {o:"big_rock", h:0, hard:1},
+		   {o:"small_rock", h:0, hard:1},
+		   {o:"burnt_tree", h:10, hard:1},
+		   {o:"big_tree", h:20, hard:1},
+		   {o:"rainbow", h:0, hard:0}];
 
 var addobjecttomap = function(){
 	if(not_going_down)
@@ -255,6 +288,7 @@ var addobjecttomap = function(){
 		return;
 	mo.type = map_objects[ranpick].o;
 	mo.height = map_objects[ranpick].h;
+        mo.hard = map_objects[ranpick].hard ? true:false;
 	mo.loc = new Point(myrand(canvasm.width*2), canvasm.height);
 	map.push(mo);
 }
@@ -330,29 +364,30 @@ var checkcollision = function(type, loc, height){
 
 
 var spriterects = [
-	{"name": "ski_left", 			"rect": new Rect(0,0,30,36),		},
-	{"name": "ski_right", 			"rect": new Rect(30,0,30,36),		},
-	{"name": "ski_down_left", 		"rect": new Rect(60,0,30,36),		},
-	{"name": "ski_down_right", 		"rect": new Rect(90,0,30,36),		},
-	{"name": "ski_down", 			"rect": new Rect(120,0,30,36),		},
-	{"name": "ski_right_down", 		"rect": new Rectxy(232,0,260,34),	},
-	{"name": "ski_left_down", 		"rect": new Rectxy(262,0,287,34),	},
-	{"name": "ski_jump_1",			"rect": new Rectxy(288,0,324,34),	},
-	{"name": "crash1", 				"rect": new Rect(155,0,30,36),		},
-	{"name": "crash2", 				"rect": new Rect(190,0,40,36),		},
-	{"name": "small_tree", 			"rect": new Rect(49, 93, 35, 40),	},
-	{"name": "big_rock", 			"rect": new Rect(120,114,30,16),	},
-	{"name": "small_rock", 			"rect": new Rectxy(236,115,256,130),},
-	{"name": "burnt_tree", 			"rect": new Rectxy(89,99,113,127),	},
-	{"name": "big_tree", 			"rect": new Rectxy(6,61,38,127),	},
-	{"name": "sign_slalom",			"rect": new Rectxy(4,183,46,221),	},
-	{"name": "sign_freestyle",		"rect": new Rectxy(54,185,97,222),	},
-	{"name": "sign_treeslalom",		"rect": new Rectxy(100,185,147,223),},
-	{"name": "sign_start_left",		"rect": new Rectxy(155,189,202,222),},
-	{"name": "sign_start_right",	"rect": new Rectxy(202,189,249,222),},
-	{"name": "sign_finish_left",	"rect": new Rectxy(333,189,385,222),},
-	{"name": "sign_finish_right",	"rect": new Rectxy(385,189,440,222),},
-	]
+    {"name": "ski_left", 		"rect": new Rect(0,0,30,36),		},
+    {"name": "ski_right", 		"rect": new Rect(30,0,30,36),		},
+    {"name": "ski_down_left", 		"rect": new Rect(60,0,30,36),		},
+    {"name": "ski_down_right", 		"rect": new Rect(90,0,30,36),		},
+    {"name": "ski_down", 		"rect": new Rect(120,0,30,36),		},
+    {"name": "ski_right_down", 		"rect": new Rectxy(232,0,260,34),	},
+    {"name": "ski_left_down", 		"rect": new Rectxy(262,0,287,34),	},
+    {"name": "ski_jump_1",		"rect": new Rectxy(288,0,324,34),	},
+    {"name": "crash1", 			"rect": new Rect(155,0,30,36),		},
+    {"name": "crash2", 			"rect": new Rect(190,0,40,36),		},
+    {"name": "small_tree", 		"rect": new Rect(49, 93, 35, 40),	},
+    {"name": "big_rock", 		"rect": new Rect(120,114,30,16),	},
+    {"name": "small_rock", 		"rect": new Rectxy(236,115,256,130),},
+    {"name": "burnt_tree", 		"rect": new Rectxy(89,99,113,127),	},
+    {"name": "big_tree", 		"rect": new Rectxy(6,61,38,127),	},
+    {"name": "rainbow",                 "rect": new Rectxy(318,288,353,299),},                            
+    {"name": "sign_slalom",	        "rect": new Rectxy(4,183,46,221),	},
+    {"name": "sign_freestyle",		"rect": new Rectxy(54,185,97,222),	},
+    {"name": "sign_treeslalom",		"rect": new Rectxy(100,185,147,223),},
+    {"name": "sign_start_left",		"rect": new Rectxy(155,189,202,222),},
+    {"name": "sign_start_right",	"rect": new Rectxy(202,189,249,222),},
+    {"name": "sign_finish_left",	"rect": new Rectxy(333,189,385,222),},
+    {"name": "sign_finish_right",	"rect": new Rectxy(385,189,440,222),},
+]
 
 var drawskier = function(ctx, loc){
 	var rect = getSpriteRectFromName(curr_skier_sprite);
