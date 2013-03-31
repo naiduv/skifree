@@ -295,14 +295,21 @@ var addobjecttomap = function(){
 
 var drawobjectsfrommap = function(){
 	for(var i=0; i<map.length; i++){
-		if(map[i].hard && map[i].hit==false && checkcollision(map[i].type, map[i].loc, map[i].height)){
-			map[i].hit = true;
-			curr_skier_sprite = "crash2";
-			crash = true;
-			score -= score_penalty_crash;
-			not_going_down = true;
-			setTimeout(oncrash, 700);
-		}
+	    if (map[i].hit == false && checkcollision(map[i].type, map[i].loc, map[i].height)) {
+	        if (map[i].hard) {
+	            map[i].hit = true;
+	            curr_skier_sprite = "crash2";
+	            crash = true;
+	            score -= score_penalty_crash;
+	            not_going_down = true;
+	            setTimeout(oncrash, 700);
+	        } else {
+	            if (map[i].type == "rainbow") {
+	                map[i].hit = true;
+	                startJump(100, 10);
+	            }
+	        }
+	    }
 
 		// if(curr_skier_sprite == 'ski_left')
 		// 	map[i].loc.x +=5;
@@ -337,8 +344,8 @@ var drawobjectsfrommap = function(){
 	}
 }
 //USE PT IN RECT
-var checkcollision = function(type, loc, height){
-	var objectrect = getSpriteRectFromName(type);
+var checkcollision = function (type, loc, height) {
+    var objectrect = getSpriteRectFromName(type);
 	var skierrect = getSpriteRectFromName(curr_skier_sprite);
 	var objcollrect = new Rect(loc.x+10, loc.y+objectrect.h-10, objectrect.w-10, 5);
 	var skiercollrect = new Rect(skierloc.x+5, skierloc.y+10, skierrect.w-10, skierrect.h-20);
