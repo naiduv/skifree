@@ -105,32 +105,31 @@ $('a').live('click', function(e) {
 function init(){
 	//we're ready for the loop
 	_gaq.push(['_trackEvent', 'game', 'started']);
-	var slow_speed = 22;
-	var fast_speed = 12;
+	slow_speed = 22;
+	fast_speed = 12;
 	
-	var map_size_cap = 300;
-	var left_right_dist_delta = 10;
-	var score_penalty_crash = 100;
-	var paused = false;
+	map_size_cap = 300;
+	left_right_dist_delta = 10;
+	score_penalty_crash = 100;
+	paused = false;
 	
-	var canvasm = document.getElementById("canvasm");
-	var ctxm = canvasm.getContext("2d");
+	canvasm = document.getElementById("canvasm");
+	ctxm = canvasm.getContext("2d");
 	
-	var canvass = document.getElementById("canvass");
-	var ctxs = canvass.getContext("2d");
+	canvass = document.getElementById("canvass");
+	ctxs = canvass.getContext("2d");
 	
-	var sprites = document.createElement('image');
+	sprites = document.createElement('image');
 	sprites.src='sprites.png';
 	
-	var curr_skier_sprite = "ski_right";
-	var skierloc = new Point(10,10);
-	var map = Array();
-	var crash = false;
-	var not_going_down = true;
-	var score;
-	var score_font_color = "black";
-	var finished_map = false;
-	var faster = false;
+	curr_skier_sprite = "ski_right";
+	skierloc = new Point(10,10);
+	map = Array();
+	crash = false;
+	not_going_down = true;
+	score_font_color = "black";
+	finished_map = false;
+	faster = false;
 
 
 	skierloc = new Point(canvass.width/2, canvass.height/2-60);
