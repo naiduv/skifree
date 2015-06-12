@@ -111,6 +111,7 @@ function init(){
 	skierloc = new Point(canvass.width/2, canvass.height/2-60);
 	score = 0;
 	addFirstObjects();
+    addSkiLift();
 	mainloop();
 }
 
@@ -170,6 +171,8 @@ var firstobjs = [{ hard: false, loc: new Point(30, 190), type: "sign_slalom" },
 
 ];
 
+var skiLiftObjs =  [{ hard: true, loc: new Point(100, 700), type: "ski_lift_pole" }];   
+
 var addFirstObjects = function()
 {
 	for(var i=0; i<firstobjs.length; i++){
@@ -177,6 +180,17 @@ var addFirstObjects = function()
 		mo.hard = firstobjs[i].hard;
 		mo.loc = firstobjs[i].loc;
 		mo.type = firstobjs[i].type;
+		map.push(mo);
+	}
+}
+
+var addSkiLift = function(){
+    var num_lift_poles = 100;
+    for(var i=0; i<100; i++){
+		var mo = new map_object();
+		mo.hard = skiLiftObjs[0].hard;
+		mo.loc = new Point(skiLiftObjs[0].loc.x, skiLiftObjs[0].loc.y+(i*900));
+		mo.type = skiLiftObjs[0].type;
 		map.push(mo);
 	}
 }

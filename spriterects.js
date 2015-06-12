@@ -23,4 +23,8 @@ var spriterects = [
     { "name": "sign_finish_left", "rect": new Rectxy(333, 189, 385, 222), },
     { "name": "sign_finish_right", "rect": new Rectxy(385, 189, 440, 222), },
     { "name": "ai_skier_1", "rect": new Rectxy(329, 53, 350, 83), },
+    { "name": "yeti_standing", "rect": new Rectxy(7, 334, 42, 380), },
+    { "name": "ski_lift_pole", "rect": new Rectxy(156, 62, 185, 130), },    
+    
+    
 ];
