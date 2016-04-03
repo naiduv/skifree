@@ -204,6 +204,8 @@ var mapcapped = function(){
 }
 
 var oncrash = function(){
+    if(jumping)
+        jumping=false;
 	if(!crash)
 		return;
 	crash=false;
@@ -276,6 +278,7 @@ var map_object = function(){
 	this.automove = false;
 	this.movevector = new Point(0,0);
 	this.height = 0;
+    this.jump = 0;
 }
 
 // var new_map_object = function(type, loc, hard, auto, vector){
@@ -288,12 +291,12 @@ var map_object = function(){
 // 	return mo;
 // }
 
-var map_objects = [{o:"small_tree", h:10, hard:1 },
-		   {o:"big_rock", h:0, hard:1},
-		   {o:"small_rock", h:0, hard:1},
-		   {o:"burnt_tree", h:10, hard:1},
-		   {o:"big_tree", h:20, hard:1},
-		   {o:"rainbow", h:0, hard:0}];
+var map_objects = [{name:"small_tree", height:10, hard:1, jump:0 },
+		   {name:"big_rock", height:0, hard:1, jump:0},
+		   {name:"small_rock", height:0, hard:1, jump:0},
+		   {name:"burnt_tree", height:10, hard:1, jump:0},
+		   {name:"big_tree", height:20, hard:1, jump:0},
+		   {name:"rainbow", height:0, hard:0, jump:10}];
 
 var addobjecttomap = function(){
 	if(not_going_down)
@@ -303,10 +306,11 @@ var addobjecttomap = function(){
 	var ranpick = myurand(3*map_objects.length-1);
 	if(ranpick > map_objects.length-1)
 		return;
-	mo.type = map_objects[ranpick].o;
-	mo.height = map_objects[ranpick].h;
-        mo.hard = map_objects[ranpick].hard ? true:false;
+	mo.type = map_objects[ranpick].name;
+	mo.height = map_objects[ranpick].height;
+    mo.hard = map_objects[ranpick].hard ? true:false;
 	mo.loc = new Point(myrand(canvasm.width*2), canvasm.height);
+    mo.jump = map_objects[ranpick].jump;
 	map.push(mo);
 }
 
@@ -321,10 +325,10 @@ var drawobjectsfrommap = function() {
                 not_going_down = true;
                 setTimeout(oncrash, 700);
             } else {
-                //if (map[i].type == "rainbow") {
-                //    map[i].hit = true;
-                //    startJump(100, 10);
-                //}
+                if (map[i].type == "rainbow") {
+                    map[i].hit = true;
+                    startJump(100, map[i].jump);
+                }
             }
         }
 
@@ -541,13 +545,15 @@ var onUp = function(){
 }
 
 var onDown = function(){
-	if(crash) 		
+    if(crash || jumping) 		
 		return;
 	curr_skier_sprite = "ski_down";
 	not_going_down = false;
 }
 
 var onLeft = function(){
+    if(jumping)
+		return;
 	//if(crash) crash = false;
 
 	curr_skier_sprite = getNextLogicalSprite(curr_skier_sprite, -1);
@@ -566,6 +572,8 @@ var onLeft = function(){
 }
 
 var onRight = function(){
+    if(jumping)
+		return;
 	//if(crash) crash = false;
 
 	curr_skier_sprite = getNextLogicalSprite(curr_skier_sprite, 1);
