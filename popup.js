@@ -414,12 +414,16 @@ document.onkeyup = function(e){
 	switch(e.keyCode){
 		case 32: onSpace();
 		break;
+		case 65:	
 		case 37: onLeft();//drawskier(ctx, spriterects[0].rect, new Point(10,10));
 		break;
+		case 87:	
 		case 38: onUp();
 		break;
+		case 68:
 		case 39: onRight();//drawskier(ctx, spriterects[1].rect, new Point(10,10));
 		break;
+		case 83:	
 		case 40: onDown();
 		break;
 		case 70: onFButton();
